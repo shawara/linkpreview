@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"linkpreview/goscraper"
+	"github.com/shawara/goscraper"
 	"log"
 	"net/http"
 	"net/url"
