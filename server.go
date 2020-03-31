@@ -5,19 +5,30 @@ import (
 	"flag"
 	"fmt"
 	"github.com/shawara/goscraper"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 	"net/http"
 	"net/url"
+	"sort"
 	"time"
 )
 
+type Image struct {
+	Url    string `json:"url"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
+
 type Preview struct {
-	Name        string   `json:"name"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Icon        string   `json:"icon"`
-	Images      []string `json:"images"`
-	Url         string   `json:"url"`
+	Name        string  `json:"name"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Icon        string  `json:"icon"`
+	Images      []Image `json:"images"`
+	Url         string  `json:"url"`
 }
 
 type workerData struct {
@@ -76,7 +87,20 @@ func worker(jobs <-chan job) {
 			pvw.Name = s.Preview.Name
 			pvw.Title = s.Preview.Title
 			pvw.Description = s.Preview.Description
-			pvw.Images = s.Preview.Images
+
+			pvw.Images = []Image{}
+			for _, v := range s.Preview.Images {
+				conf, err := getImageConfig(v)
+				log.Println("error:", err)
+				if err != nil {
+					pvw.Images = append(pvw.Images, Image{v, 0, 0})
+				} else {
+					pvw.Images = append(pvw.Images, Image{v, conf.Width, conf.Height})
+				}
+			}
+			sort.Slice(pvw.Images, func(i, j int) bool {
+				return pvw.Images[i].Width*pvw.Images[i].Height > pvw.Images[j].Width*pvw.Images[j].Height
+			})
 
 			res, _ := json.Marshal(pvw)
 			params.Result <- workerData{
@@ -85,6 +109,21 @@ func worker(jobs <-chan job) {
 			}
 		}
 	}
+}
+
+func getImageConfig(url string) (*image.Config, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	config, _, err := image.DecodeConfig(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
 func main() {
