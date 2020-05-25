@@ -77,7 +77,7 @@ func worker(jobs <-chan job) {
 	for {
 
 		params := <-jobs
-		s, err := goscraper.Scrape(params.Url, 5)
+		s, err := goscraper.Scrape(params.Url, 5, "")
 		if err != nil {
 			params.Result <- workerData{Status: http.StatusBadRequest, Data: "{\"status\": \"error\", \"message\":\"Unable to retrieve information from provided url\"}"}
 		} else {
