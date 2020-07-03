@@ -37,10 +37,21 @@ type workerData struct {
 }
 
 type job struct {
-	Url    string
-	Result chan workerData
+	Url     string
+	Headers map[string]string
+	Result  chan workerData
 }
 type apiHandler struct {
+}
+
+func getUrlHeaders(url string) map[string]string {
+	return map[string]string{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+		//"Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8,ar;q=0.7",
+		//"Accept-Encoding": "br, gzip, deflate",
+		//"Accept":          "test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+		//"Referer":         "http://www.google.com/",
+	}
 }
 
 func (h *apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +74,7 @@ func (h *apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Sending job: %s", u)
 	c := make(chan workerData)
-	jobPool <- job{Url: u, Result: c}
+	jobPool <- job{Url: u, Headers: getUrlHeaders(u), Result: c}
 	data := <-c
 
 	w.WriteHeader(data.Status)
@@ -77,7 +88,7 @@ func worker(jobs <-chan job) {
 	for {
 
 		params := <-jobs
-		s, err := goscraper.Scrape(params.Url, 5, "")
+		s, err := goscraper.Scrape(params.Url, 5, params.Headers)
 		if err != nil {
 			params.Result <- workerData{Status: http.StatusBadRequest, Data: "{\"status\": \"error\", \"message\":\"Unable to retrieve information from provided url\"}"}
 		} else {
