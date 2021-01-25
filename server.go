@@ -46,11 +46,7 @@ type apiHandler struct {
 
 func getUrlHeaders(url string) map[string]string {
 	return map[string]string{
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-		//"Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8,ar;q=0.7",
-		//"Accept-Encoding": "br, gzip, deflate",
-		//"Accept":          "test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-		//"Referer":         "http://www.google.com/",
+		"User-Agent": "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)",
 	}
 }
 
