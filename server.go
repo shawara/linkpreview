@@ -46,7 +46,7 @@ type apiHandler struct {
 
 func getUrlHeaders(url string) map[string]string {
 	return map[string]string{
-		"User-Agent": "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
 	}
 }
 
@@ -137,7 +137,7 @@ func main() {
 	workerCount := flag.Int("worker_count", 1000, "Amount of workers to start")
 	host := flag.String("host", "localhost", "Host to listen on")
 	port := flag.Int("port", 8000, "Port to listen on")
-	waitTimeout := flag.Int("wait_timeout", 10, "How much time to wait for/fetch response from remote server")
+	waitTimeout := flag.Int("wait_timeout", 60, "How much time to wait for/fetch response from remote server")
 
 	flag.Parse()
 
